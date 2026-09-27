@@ -1,0 +1,32 @@
+/* Unity Design Tokens + Tailwind theme */
+@layer theme, base, components, utilities;
+@import "@abbvie-unity/react/esm/unity-tokens.css" layer(theme);
+@import "@abbvie-unity/react/esm/unity-tailwind.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@abbvie-unity/react/esm/unity-tailwind-utilities.css";
+@import "@abbvie-unity/react/esm/index.css" layer(components);
+
+/* App-specific styles */
+body {
+  margin: 0;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Don't remove without fully understanding the consequences - some layout depends on this variable */
+  --header-height: 80px;
+
+  /* The following are commented because its already set by the UnityProvider since we use `withRootStyles` */
+  /* background-color: var(--un-background-01); */
+  /* color: var(--un-text-default); */
+  /* font-family: var(--un-font-family-primary); */
+
+  /* Commented out because UnityProvider already sets this based on the `mode` */
+  /* color-scheme: light; */
+}
+
+code {
+  font-family: var(--font-code);
+}

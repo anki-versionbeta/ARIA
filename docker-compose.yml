@@ -1,0 +1,150 @@
+# ARIA — local end-to-end stack.
+#
+# For local verification only. Ocean does not use this file: it builds each image
+# from its own directory and deploys them as separate ECS services. The value here
+# is being able to exercise the real three-process shape (api + worker + nginx)
+# against a real Postgres before anything reaches the pipeline.
+#
+#   docker compose up --build
+#   open http://localhost:8088
+#
+# Host port 8088 rather than 8080: something else was already listening on 8080 on
+# the machine this was first brought up on. Change it freely — only the host side
+# matters, the container still listens on 8080 to match Ocean's ContainerPort.
+#
+# Run several workers, which is how the dev EC2 runs it (aria-worker@1..5):
+#   docker compose up --scale worker=3
+#
+# Tear down, including the database volume:
+#   docker compose down -v
+#
+# ---------------------------------------------------------------------------
+# Two things to understand before changing the environment blocks
+# ---------------------------------------------------------------------------
+# DA_ENV=local is doing two necessary jobs here, not just naming an environment:
+#
+#   1. It is the only thing that runs create_all(), which builds the schema. Since
+#      db/models.py declares every table -- including access_requests and
+#      user_module_access -- a fresh Postgres gets the full schema with no SQL
+#      migrations. deploy/sql/*.sql exist to upgrade a database that is already
+#      running, which is a different job.
+#   2. It keeps cookie_secure False. Anything else sets Secure on the session
+#      cookie, and a browser will not send a Secure cookie over http://localhost,
+#      so login silently fails. deploy/README.md records the same trap.
+#
+# deploy/sql/001_worker_allowlist_guard.sql is deliberately NOT applied. It
+# installs a trigger that rejects run claims from any host outside an allowlist,
+# and container hostnames are random, so applying it here would make every worker
+# unable to claim work.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aria
+      POSTGRES_PASSWORD: aria-local-only
+      POSTGRES_DB: aria
+    ports:
+      # Exposed so you can psql in from the host while debugging.
+      - "15432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aria -d aria"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: ./ecs
+    image: aria-backend:dev
+    env_file:
+      # Supplies the credentials only: Iliad, AWS/S3, Oracle, Smartsheet. Gitignored.
+      # Anything in the environment block below overrides this file.
+      - ./ecs/python/.env
+    environment:
+      ROLE: api
+      DA_ENV: local
+      # Overrides the .env value so tests never touch the shared dev RDS.
+      DATABASE_URL: postgresql+psycopg2://aria:aria-local-only@db:5432/aria
+      JWT_SECRET: local-compose-only-not-a-real-secret
+      # STORAGE_BACKEND comes from .env (s3). Every silo reads its templates and
+      # gold documents from object storage, so s3 is required for a real document
+      # run. Set STORAGE_BACKEND=local here for a fully self-contained stack that
+      # cannot generate documents.
+      #
+      # STORAGE_DIR is not set: the image already defaults it to /tmp/aria-storage,
+      # because settings.py's own default (/app/dev_storage) is inside the
+      # root-owned code directory and a non-root container cannot create it.
+      LOG_LEVEL: INFO
+    ports:
+      # Direct access for poking the API without going through nginx.
+      - "18080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # The image ships no curl or wget, but it does have Python.
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8080/api/healthz',timeout=5).status==200 else 1)"
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 20s
+
+  worker:
+    build:
+      context: ./ecs
+    image: aria-backend:dev
+    env_file:
+      - ./ecs/python/.env
+    environment:
+      ROLE: worker
+      DA_ENV: local
+      DATABASE_URL: postgresql+psycopg2://aria:aria-local-only@db:5432/aria
+      JWT_SECRET: local-compose-only-not-a-real-secret
+      LOG_LEVEL: INFO
+      # Per process, not cluster-wide: the real ceiling is this times the number of
+      # workers. Lowered from the default 8 because --scale multiplies it.
+      LLM_MAX_CONCURRENCY: "4"
+    depends_on:
+      db:
+        condition: service_healthy
+      # Waits for the API, because the API is what runs create_all().
+      api:
+        condition: service_healthy
+    # Matches TimeoutStopSec=300 in deploy/systemd/aria-worker@.service: SIGTERM
+    # lets the current stage finish. Note Fargate caps StopTimeout at 120s.
+    stop_grace_period: 300s
+
+  web:
+    build:
+      context: ./nodejs
+      args:
+        # Artifactory credential. Every package in package-lock.json resolves to
+        # abbvie.jfrog.io and anonymous read returns 401, so the build needs one.
+        # Export NPM_TOKEN before `docker compose build`, or leave it unset if you
+        # have a nodejs/.npmrc — the Dockerfile accepts either.
+        NPM_TOKEN: ${NPM_TOKEN:-}
+    image: aria-frontend:dev
+    environment:
+      # nginx proxies /api here. Same-origin from the browser's point of view,
+      # which is what keeps the httpOnly session cookie working without CORS.
+      API_SERVER_URL: http://api:8080
+      PORT: "8080"
+    ports:
+      - "8088:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      # nginx:alpine has busybox wget.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
