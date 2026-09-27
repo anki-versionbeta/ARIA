@@ -1,0 +1,52 @@
+# Build context is ecs/, and the source lives one level down under python/. Patterns
+# that used to be context-root-relative therefore need a leading **/ — a bare `.env`
+# would match only ecs/.env and MISS ecs/python/.env, which is where the real one is.
+
+# SECURITY: settings.py loads PROJECT_ROOT/.env at import time, and PROJECT_ROOT
+# resolves to /app in the image — i.e. whatever python/.env becomes. A .env that
+# reaches the build context is baked into a layer and pushed to ECR.
+**/.env
+**/.env.*
+
+# Large and irrelevant inside the image.
+**/.venv/
+**/venv/
+**/env/
+**/node_modules/
+
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/.pytest_cache/
+**/.coverage
+**/.coverage.*
+**/coverage.xml
+
+# Local development state. dev.db would otherwise ship as a stale database and
+# dev_storage as somebody's uploaded documents. Both are PROJECT_ROOT-relative, so
+# they appear under python/.
+**/dev.db
+**/dev.db-wal
+**/dev.db-shm
+**/dev_storage/
+**/e2e.db*
+**/e2e_storage/
+
+# Scratch output from scripts/diagnose_tls.py.
+**/certs/_t_*.pem
+
+# Tests are run by the pipeline against the source tree, not inside the image.
+python/tests/
+
+# Docker and repo metadata.
+Dockerfile
+.dockerignore
+.gitignore
+.gitattributes
+*.md
+
+# Editor / OS noise.
+**/.vscode/
+**/.idea/
+**/.DS_Store
+**/Thumbs.db
