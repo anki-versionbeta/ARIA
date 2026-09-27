@@ -1,0 +1,20 @@
+[Unit]
+Description=ARIA document authoring API (uvicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mohanax25
+Group=users
+WorkingDirectory=/homes/mohanax25/ARIA_dev/da-backend
+Environment=PYTHONPATH=/homes/mohanax25/ARIA_dev/da-backend
+ExecStart=/homes/mohanax25/ARIA_dev/da-backend/.venv/bin/python -m uvicorn da_platform.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+TimeoutStopSec=60
+StandardOutput=append:/homes/mohanax25/ARIA_dev/logs/api.log
+StandardError=append:/homes/mohanax25/ARIA_dev/logs/api.log
+
+[Install]
+WantedBy=multi-user.target

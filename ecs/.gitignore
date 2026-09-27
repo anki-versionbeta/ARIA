@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+dev.db
+dev.db-wal
+dev.db-shm
+dev_storage/
+e2e.db*
+e2e_storage/
+certs/_t_*.pem
+.pytest_cache/
