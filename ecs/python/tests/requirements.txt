@@ -1,0 +1,28 @@
+# Test-only dependencies.
+#
+# Separate from ../../requirements.txt so the container does not install them: the
+# Dockerfile installs only that file, and tests/ is excluded from the build context
+# entirely. Note pytest and httpx currently still live in the parent file, under its
+# "Tests" heading, so they DO ship in the image; moving them here is a sensible follow-up
+# but changes what the image contains, so it is left as a separate decision.
+#
+# Install with:
+#   pip install -r ../requirements.txt -r requirements.txt
+
+# Coverage measurement. Deliberately NOT pinned, which is against this repo's
+# convention, because it could not be resolved here to learn a valid version: pypi.org
+# is blocked for this account at the proxy with CATEGORY_DENIED ("Not allowed to browse
+# Software Repo Override PyPi simple category"), not merely a TLS problem, so no CA
+# bundle helps. requirements.txt records the same wall for alembic. Whoever first
+# installs this from CI or Artifactory should pin the exact version they get.
+#
+# Until then, line coverage can be measured with the standard library alone — see the
+# note below — so a missing plugin does not block the work.
+pytest-cov
+
+# Measuring coverage without this plugin:
+#   sys.settrace records executed lines, and the executable line numbers come from each
+#   module's compiled code objects (code.co_lines(), walked through co_consts for nested
+#   functions). That is the same information a coverage tool collects. It was used to
+#   verify the tests for html_content.py, auth/access.py and db/dialect.py reach 100% of
+#   their target modules, up from 47%, 82% and 23%.

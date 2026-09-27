@@ -1,0 +1,17 @@
+venv/
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+backend/temp/
+.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+*.sqlite
+*.db
