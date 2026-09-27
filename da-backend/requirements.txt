@@ -1,0 +1,54 @@
+# Pinned to the versions verified on the development machine (Python 3.12.4).
+#
+# Install through Artifactory with the combined CA bundle, since pypi.org is
+# blocked by the proxy and Artifactory redirects downloads to S3:
+#   python -m pip install -r requirements.txt
+# using the index and `cert` settings in .venv/pip.ini.
+
+# ── Web and API ───────────────────────────────────────────────────────────────
+fastapi==0.124.4
+uvicorn==0.38.0
+pydantic==2.12.5
+python-multipart==0.0.22    # multipart uploads (silo document POSTs)
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+python-jose==3.5.0          # JWT signing for the session cookie
+ldap3==2.9.1                # Active Directory simple bind
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.45
+# psycopg2 is never imported: SQLAlchemy loads it from the `postgresql+psycopg2://`
+# DATABASE_URL at runtime, so no import scan or linter reports it missing and its
+# absence surfaces only on the first query. Required wherever DATABASE_URL is
+# Postgres. On Linux prefer psycopg2-binary unless the PostgreSQL client headers are
+# available to compile against.
+psycopg2==2.9.11
+oracledb==4.0.2             # CMC data warehouse (ATR/MFGR), thin mode
+
+# ── External services ─────────────────────────────────────────────────────────
+requests==2.32.5            # the Iliad LLM client
+boto3==1.40.61              # S3 object storage and Textract
+botocore==1.40.61           # imported directly for its exception types
+certifi==2025.11.12         # public roots for the combined CA bundle
+
+# ── Document processing ───────────────────────────────────────────────────────
+PyMuPDF==1.26.7             # imported as `fitz`; ISO page rendering and geometry
+pdfplumber==0.11.9          # BOP text ingest
+pypdf==6.7.0                # the finalize record-lock (read-only fields + encrypt)
+python-docx==1.2.0          # imported as `docx`; DOCX output for every silo
+reportlab==4.4.7            # ATR/MFGR PDF rendering, incl. the AcroForm fields
+Pillow==12.0.0              # imported as `PIL`; ISO image handling
+bleach==6.2.0               # sanitises author-supplied section HTML
+
+# ── Tests ─────────────────────────────────────────────────────────────────────
+pytest==9.0.3
+httpx==0.28.1               # required by fastapi.testclient
+
+# ── Diagnostics only ──────────────────────────────────────────────────────────
+# Used solely by scripts/diagnose_tls.py to inspect the proxy's certificate chain.
+# Safe to omit from a deployed image.
+cryptography==46.0.3
+
+# Not yet installable on the development machine, and not yet required:
+#   alembic          - migrations; local dev uses create_all() (D23)
+#   pydantic-settings - avoided; settings.py reads os.environ directly

@@ -1,0 +1,19 @@
+[Unit]
+Description=ARIA frontend (Vite on 8080)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mohanax25
+Group=users
+WorkingDirectory=/homes/mohanax25/ARIA_dev/da-frontend
+Environment=PATH=/homes/mohanax25/node22/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/homes/mohanax25/node22/bin/node node_modules/.bin/vite --host 0.0.0.0 --port 8080 --strictPort
+Restart=always
+RestartSec=5
+StandardOutput=append:/homes/mohanax25/ARIA_dev/logs/web8080.log
+StandardError=append:/homes/mohanax25/ARIA_dev/logs/web8080.log
+
+[Install]
+WantedBy=multi-user.target
