@@ -1,0 +1,66 @@
+vendor,vendor_color_name,vendor_code,canonical_color,hue_group,hex,sizes_mm,finish,off_the_shelf,component,notes
+Datwyler,Transparent 6001,6001,Transparent,neutral,,13;20,glossy;matte,1,pp_disc,translucent - no solid hex; excluded from delta-E
+Datwyler,White 6003,6003,White,neutral,#FFFFFF,13;20,glossy;matte,1,pp_disc,
+Datwyler,Ivory 6116,6116,Ivory,neutral,#EDE6D0,13;20,glossy;matte,1,pp_disc,
+Datwyler,Yellow 6023,6023,Yellow,yellow,#F7D417,13;20,glossy;matte,1,pp_disc,
+Datwyler,Yellow 6038,6038,Yellow,yellow,#F5C400,13;20,glossy;matte,1,pp_disc,
+Datwyler,Orange 6063,6063,Orange,orange,#F0A020,13;20,glossy;matte,1,pp_disc,
+Datwyler,Orange 6008,6008,Orange,orange,#F08A1D,13;20,glossy;matte,1,pp_disc,
+Datwyler,Orange 6005,6005,Orange,orange,#EF7C1A,13;20,glossy;matte,1,pp_disc,
+Datwyler,Orange 6029,6029,Orange,orange,#E8531B,13;20,glossy;matte,1,pp_disc,
+Datwyler,Red 6055,6055,Red,red,#D81E27,13;20,glossy;matte,1,pp_disc,
+Datwyler,Red 6036,6036,Red,red,#B92434,13;20,glossy;matte,1,pp_disc,
+Datwyler,Maroon 6011,6011,Maroon,red,#8C1D2C,13;20,glossy;matte,1,pp_disc,
+Datwyler,Burgundy 6010,6010,Burgundy,red,#7A1E33,13;20,glossy;matte,1,pp_disc,
+Datwyler,Plum 6022,6022,Plum,purple,#5E2544,13;20,glossy;matte,1,pp_disc,
+Datwyler,Pink 6035,6035,Pink,pink,#E39A8C,13;20,glossy;matte,1,pp_disc,
+Datwyler,Pink 6060,6060,Pink,pink,#F3C9D6,13;20,glossy;matte,1,pp_disc,
+Datwyler,Pink 6047,6047,Pink,pink,#EE7BA0,13;20,glossy;matte,1,pp_disc,
+Datwyler,Lilac 6052,6052,Lilac,purple,#C9AEDA,13;20,glossy;matte,1,pp_disc,
+Datwyler,Purple 6056,6056,Purple,purple,#8E86C9,13;20,glossy;matte,1,pp_disc,
+Datwyler,Purple 6014,6014,Purple,purple,#7B4EA6,13;20,glossy;matte,1,pp_disc,
+Datwyler,Blue 6016,6016,Blue,blue,#1E9CD7,13;20,glossy;matte,1,pp_disc,
+Datwyler,Blue 6018,6018,Blue,blue,#1560A8,13;20,glossy;matte,1,pp_disc,
+Datwyler,Blue 6034,6034,Blue,blue,#0E4C9A,13;20,glossy;matte,1,pp_disc,
+Datwyler,Blue 6043,6043,Blue,blue,#1B2A5B,13;20,glossy;matte,1,pp_disc,navy
+Datwyler,Green 6042,6042,Green,green,#8FD1A6,13;20,glossy;matte,1,pp_disc,mint
+Datwyler,Turquoise 6012,6012,Turquoise,teal,#3FC5B7,13;20,glossy;matte,1,pp_disc,
+Datwyler,Turquoise 6066,6066,Turquoise,teal,#7FD3D8,13;20,glossy;matte,1,pp_disc,
+Datwyler,Teal 6032,6032,Teal,teal,#158E9B,13;20,glossy;matte,1,pp_disc,
+Datwyler,Lime 6013,6013,Lime,green,#8CC63F,13;20,glossy;matte,1,pp_disc,
+Datwyler,Olive 6085,6085,Olive,green,#6B7A2E,13;20,glossy;matte,1,pp_disc,
+Datwyler,Green 6007,6007,Green,green,#159A55,13;20,glossy;matte,1,pp_disc,
+Datwyler,Green 6020,6020,Green,green,#1C5C4E,13;20,glossy;matte,1,pp_disc,dark green
+Datwyler,Brown 6039,6039,Brown,brown,#9C4B2E,13;20,glossy;matte,1,pp_disc,
+Datwyler,Brown 6004,6004,Brown,brown,#7A4A22,13;20,glossy;matte,1,pp_disc,
+Datwyler,Brown 6041,6041,Brown,brown,#5A331C,13;20,glossy;matte,1,pp_disc,
+Datwyler,Grey 6051,6051,Grey,neutral,#C4CBD0,13;20,glossy;matte,1,pp_disc,
+Datwyler,Grey 6019,6019,Grey,neutral,#B9C0C4,13;20,glossy;matte,1,pp_disc,
+Datwyler,Grey 6081,6081,Grey,neutral,#808A90,13;20,glossy;matte,1,pp_disc,
+Datwyler,Grey 6017,6017,Grey,neutral,#4E5459,13;20,glossy;matte,1,pp_disc,
+Datwyler,Black 6006,6006,Black,neutral,#1A1A1A,13;20,glossy;matte,1,pp_disc,
+Datwyler,Alu Clear 001,001,Clear,neutral,#D9DCDF,13;20,,1,alu_shell,aluminium shell colour (not the PP disc)
+Datwyler,Alu Light gold 002,002,Gold,neutral,#C9B37E,13;20,,1,alu_shell,aluminium shell colour
+Datwyler,Alu Red 003,003,Red,red,#C0212E,13;20,,1,alu_shell,aluminium shell colour
+Datwyler,Alu Green 004,004,Green,green,#2E9B57,13;20,,1,alu_shell,aluminium shell colour
+Datwyler,Alu Blue 005,005,Blue,blue,#1667B0,13;20,,1,alu_shell,aluminium shell colour
+West,Dark Grey 4014,4014,Grey,neutral,#4B4F54,13;20;32,,1,pp_disc,availability per design - verify
+West,White 3766,3766,White,neutral,#FFFFFF,13;20;32,,1,pp_disc,availability per design - verify
+West,Natural 6007,6007,Natural,neutral,#E8E4D8,13;20;32,,1,pp_disc,translucent natural; West code 6007 != Datwyler 6007
+West,Yellow 3772,3772,Yellow,yellow,#F6D318,13;20;32,,1,pp_disc,
+West,Orange 3773,3773,Orange,orange,#EF7D1A,13;20;32,,1,pp_disc,stored in DB as L3773
+West,Pink 2468,2468,Pink,pink,#E27EA6,13;20;32,,1,pp_disc,
+West,Red 3767,3767,Red,red,#CE1F2E,13;20;32,,1,pp_disc,
+West,Dark Red 6108,6108,Maroon,red,#8E1B2A,13;20;32,,1,pp_disc,
+West,Violet 5008,5008,Violet,purple,#6E4A9E,13;20;32,,1,pp_disc,
+West,Lavender 4788,4788,Lavender,purple,#B7A9D6,13;20;32,,1,pp_disc,
+West,Light Blue 3779,3779,Blue,blue,#4FA9DD,13;20;32,,1,pp_disc,
+West,Blue 3769,3769,Blue,blue,#1560A8,13;20;32,,1,pp_disc,
+West,Dark Blue 4020,4020,Blue,blue,#1B2A5B,13;20;32,,1,pp_disc,navy
+West,Aqua 1381,1381,Aqua,teal,#3FC5C0,13;20;32,,1,pp_disc,
+West,Green 3768,3768,Green,green,#1C9A4B,13;20;32,,1,pp_disc,
+West,Light Green 4874,4874,Lime,green,#8CC63F,13;20;32,,1,pp_disc,
+West,Medium Brown 2213,2213,Brown,brown,#8A5A2B,13;20;32,,1,pp_disc,
+West,Brown 3770,3770,Brown,brown,#5A331C,13;20;32,,1,pp_disc,
+West,Black 7607,7607,Black,neutral,#1A1A1A,13;20;32,,1,pp_disc,
+West,Mist Grey 4107,4107,Grey,neutral,#C4CBD0,13;20;32,,1,pp_disc,

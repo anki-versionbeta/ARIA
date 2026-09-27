@@ -1,0 +1,168 @@
+# ARIA frontend — nginx serving the Vite build and proxying /api to the backend.
+#
+# This is a TEMPLATE. docker-entrypoint.sh runs envsubst over it at container
+# start with an explicit variable list, so one built image is promoted from dev to
+# prod with only environment variables changing (ARIA spec decision D21).
+#
+# Only these are substituted: ${PORT} ${API_SERVER_URL} ${CLIENT_MAX_BODY_SIZE}
+# ${PROXY_TIMEOUT} ${DNS_RESOLVER}. nginx's own runtime variables ($uri,
+# $request_uri, $remote_addr, ...) are passed through untouched — which is exactly
+# why envsubst is given a variable list rather than being let loose on the file.
+
+worker_processes auto;
+
+# Not /var/run/nginx.pid: that directory is root-owned, and this runs as nginx.
+pid /tmp/nginx.pid;
+
+# Fargate collects stdout/stderr via the awslogs driver, so logs go to the console
+# rather than to files.
+error_log /dev/stderr warn;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+
+    # nginx's stock mime.types has NO entry for .mjs, so it would be served as
+    # application/octet-stream — and a browser refuses to execute an ES module
+    # with that content type, failing with "Failed to fetch dynamically imported
+    # module". Vite emits the pdf.js worker as assets/pdf.worker.min-<hash>.mjs,
+    # so without this the PDF preview in the ATR/MFGR review panel is broken while
+    # every other asset works. Verified: .js, .css and .woff2 resolve correctly
+    # from mime.types; .mjs was the only gap.
+    types {
+        application/javascript mjs;
+    }
+
+    default_type  application/octet-stream;
+
+    log_format aria '$remote_addr $request_method $request_uri $status '
+                    '$body_bytes_sent ${request_time}s "$http_user_agent"';
+    access_log /dev/stdout aria;
+
+    sendfile        on;
+    tcp_nopush      on;
+    keepalive_timeout 65;
+
+    # Do not advertise the nginx version.
+    server_tokens off;
+
+    # An ALB sits in front, so nginx must never build an absolute redirect: it
+    # would leak the container port (:8080) into a Location header the browser
+    # then follows to a port it cannot reach.
+    absolute_redirect off;
+    port_in_redirect  off;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    # text/html is always included implicitly and must not be listed again.
+    gzip_types text/css text/plain text/javascript application/javascript
+               application/json application/manifest+json image/svg+xml;
+
+    # The backend enforces MAX_UPLOAD_MB (default 200). nginx's own default is 1m,
+    # which would reject every real document with 413 before the request ever
+    # reached the API. Set slightly above 200m to allow for the multipart envelope.
+    client_max_body_size ${CLIENT_MAX_BODY_SIZE};
+
+    # DNS re-resolution. An internal ALB's IP addresses change over time, and nginx
+    # resolves a literal `proxy_pass host` exactly once at startup and caches it
+    # forever — which shows up later as intermittent 502s that a restart "fixes".
+    # Putting the upstream in a variable forces nginx to use this resolver, so the
+    # address is re-checked. DNS_RESOLVER is read from /etc/resolv.conf at start,
+    # which gives Docker's embedded DNS locally and the VPC resolver on Fargate.
+    resolver ${DNS_RESOLVER} valid=10s ipv6=off;
+    resolver_timeout 5s;
+
+    server {
+        listen      ${PORT};
+        server_name _;
+
+        root  /usr/share/nginx/html;
+        index index.html;
+
+        # ---- Health check -------------------------------------------------
+        # Point the ALB target group's HealthCheckPath here. Deliberately does not
+        # touch the filesystem, so it answers even if the build output were
+        # missing — it reports "nginx is up", which is what a liveness check is
+        # for. Matches the shipped PDF Redaction frontend, which also uses
+        # /healthz rather than /.
+        location = /healthz {
+            access_log off;
+            default_type text/plain;
+            return 200 "ok\n";
+        }
+
+        # ---- Runtime configuration ---------------------------------------
+        # src/config/runtime.ts fetches this at boot, before the router mounts,
+        # and parses it as JSON. Two things must hold:
+        #   1. It must NEVER fall through to the SPA fallback. If the app receives
+        #      HTML here it throws and renders only "Application configuration
+        #      failed to load" — a blank page with no useful console output. A
+        #      hard 404 is vastly easier to diagnose, hence `=404`.
+        #   2. no-store, so a promoted image can never serve a previous
+        #      environment's apiBaseUrl from a cache or a future CloudFront.
+        location = /config.json {
+            add_header Cache-Control "no-store" always;
+            try_files $uri =404;
+        }
+
+        # ---- Hashed build output -----------------------------------------
+        # Vite fingerprints these filenames, so they can be cached indefinitely.
+        # Includes the pdf.worker chunk, which must keep its JS content type —
+        # served from mime.types, not guessed.
+        location /assets/ {
+            add_header Cache-Control "public, max-age=31536000, immutable" always;
+            try_files $uri =404;
+        }
+
+        # ---- API proxy ----------------------------------------------------
+        # Same-origin by design. Login returns an httpOnly session cookie, and
+        # browsers only attach those automatically to same-origin requests; the
+        # backend has no CORS middleware at all (see da_platform/main.py:25-28).
+        # So /api must be served from this hostname and forwarded here, rather
+        # than pointing the browser at the backend's own ALB.
+        #
+        # Note public/config.json ships apiBaseUrl="/api", so this prefix and that
+        # value must agree.
+        location /api/ {
+            # In a variable, so `resolver` above is used and DNS is re-checked.
+            set $aria_api ${API_SERVER_URL};
+            # $request_uri carries the full original path and query string.
+            # Required: with a variable upstream, nginx does not pass the request
+            # URI implicitly the way it does for a literal proxy_pass.
+            proxy_pass $aria_api$request_uri;
+
+            proxy_http_version 1.1;
+            proxy_set_header Connection        "";
+            proxy_set_header Host              $host;
+            proxy_set_header X-Real-IP         $remote_addr;
+            proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            # Stream uploads straight through. nginx otherwise buffers the entire
+            # request body to disk before contacting the backend, which for a
+            # 200MB document means needless latency and a large temp write.
+            proxy_request_buffering off;
+
+            proxy_connect_timeout 10s;
+            proxy_send_timeout    ${PROXY_TIMEOUT};
+            proxy_read_timeout    ${PROXY_TIMEOUT};
+        }
+
+        # ---- SPA fallback -------------------------------------------------
+        # TanStack Router uses browser history, so /login, /history, /new,
+        # /documents/<id>, /silos/<id>/config exist only inside the bundle. Without
+        # this, a deep link or a browser refresh returns 404.
+        #
+        # Ordered last, and the exact-match locations above take precedence, so it
+        # cannot swallow /config.json or /healthz.
+        location / {
+            add_header Cache-Control "no-cache" always;
+            try_files $uri $uri/ /index.html;
+        }
+    }
+}

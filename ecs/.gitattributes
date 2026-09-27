@@ -1,0 +1,7 @@
+# Shell scripts must keep LF endings. A CRLF in the shebang of
+# docker-entrypoint.sh makes Linux fail with "no such file or directory" for a
+# file that is plainly there, which is a miserable thing to debug inside a
+# container. The Ocean sample repo ships this same rule for the same reason.
+*.sh text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
