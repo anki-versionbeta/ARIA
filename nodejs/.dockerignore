@@ -1,0 +1,40 @@
+# Keep the build context small, and keep credentials and local state out.
+
+# .npmrc is deliberately NOT excluded: the builder stage COPYs it to authenticate
+# against abbvie.jfrog.io. It is safe because that stage is discarded — only dist/
+# crosses into the runtime image, so the credential is never published to ECR.
+# Confirm with:
+#   docker run --rm --entrypoint sh aria-frontend -c 'find / -name .npmrc'
+# Switch to a BuildKit secret mount if Ocean's builder supports it; see Dockerfile.
+
+.env
+.env.*
+*.local
+
+# Reinstalled by `npm ci` in the builder. Also the single largest thing here, and
+# a host node_modules built on Windows would be the wrong platform anyway.
+node_modules
+
+# Rebuilt by `npm run build`. A stale host dist/ must never be copied in.
+dist
+dist-ssr
+
+coverage
+.nitro
+.tanstack
+.wrangler
+
+# Docker and repo metadata.
+# NOTE: nginx.conf.template and docker-entrypoint.sh are deliberately NOT listed —
+# the runtime stage COPYs both, so excluding them here breaks the build.
+Dockerfile
+.dockerignore
+.gitignore
+.gitattributes
+*.md
+
+# Editor / OS noise.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
