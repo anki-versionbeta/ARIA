@@ -1,0 +1,25 @@
+{
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "always"
+  },
+  "cssVariables.lookupFiles": [
+    "node_modules/@abbvie-unity/design-tokens/dist/css/semantic/semantic.css",
+    "node_modules/@abbvie-unity/design-tokens/dist/css/density/balanced.css",
+    "node_modules/@abbvie-unity/design-tokens/dist/css/mode/light.css",
+    "node_modules/@abbvie-unity/design-tokens/dist/css/component/components.css"
+  ],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}

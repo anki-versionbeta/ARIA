@@ -1,0 +1,21 @@
+[Unit]
+Description=ARIA worker %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mohanax25
+Group=users
+WorkingDirectory=/homes/mohanax25/ARIA_dev/da-backend
+Environment=PYTHONPATH=/homes/mohanax25/ARIA_dev/da-backend
+ExecStart=/homes/mohanax25/ARIA_dev/da-backend/.venv/bin/python -m worker
+Restart=always
+RestartSec=5
+# a stage can run for minutes; SIGTERM lets it finish the current stage first
+TimeoutStopSec=300
+StandardOutput=append:/homes/mohanax25/ARIA_dev/logs/worker-%i.log
+StandardError=append:/homes/mohanax25/ARIA_dev/logs/worker-%i.log
+
+[Install]
+WantedBy=multi-user.target
