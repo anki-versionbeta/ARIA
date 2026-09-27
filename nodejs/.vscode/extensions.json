@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+	// Linters
+    "biomejs.biome", // Biome (linter + formatter) - modern alternative to Prettier + ESLint
+    "deque-systems.vscode-axe-linter", // axe Accessibility Linter
+
+	// IntelliSense / AutoComplete
+    "bradlc.vscode-tailwindcss", // Tailwind CSS IntelliSense
+	"vunguyentuan.vscode-css-variables", // CSS Variable Autocomplete
+
+	// Testing
+	"vitest.explorer", // Vitest
+  ],
+}
