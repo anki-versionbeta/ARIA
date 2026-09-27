@@ -1,0 +1,26 @@
+import { cn } from "./cn";
+
+describe("cn utility", () => {
+  it("merges multiple class strings", () => {
+    expect(cn("foo", "bar")).toBe("foo bar");
+  });
+
+  it("handles conditional classes", () => {
+    expect(cn("foo", false && "bar", "baz")).toBe("foo baz");
+    expect(cn({ foo: true, bar: false, baz: true })).toBe("foo baz");
+  });
+
+  it("merges conflicting Tailwind classes properly", () => {
+    expect(cn("px-2", "p-4")).toBe("p-4");
+    expect(cn("bg-red-500", "bg-blue-600")).toBe("bg-blue-600");
+  });
+
+  it("returns empty string for falsy inputs", () => {
+    expect(cn()).toBe("");
+    expect(cn(false, null, undefined, "")).toBe("");
+  });
+
+  it("joins multiple inputs seamlessly", () => {
+    expect(cn("foo", ["bar", "baz"], { qux: true })).toBe("foo bar baz qux");
+  });
+});

@@ -1,0 +1,16 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+count.txt
+.env
+.nitro
+.tanstack
+.wrangler
+.npmrc
+coverage
+LOCAL_NOTES
+
+# Don't commit private claude files (underscored with prefix) to help author the template - project teams can delete this
+.claude/_*
